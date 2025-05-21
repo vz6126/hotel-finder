@@ -3,11 +3,12 @@
 CLI entry point for hotel finder using RapidApiClient
 """
 from rapidapi_client import RapidApiClient
+import sys
 
-def main():
+def main(city, state):
     client = RapidApiClient(debug=True)
 
-    locations_response = client.locations("Houston", "Texas")
+    locations_response = client.locations(city, state)
     print(locations_response.message)
     dest_id = locations_response.dest_id
     if not dest_id:
@@ -20,4 +21,9 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    if len(sys.argv) == 3:
+        city = sys.argv[1]
+        state = sys.argv[2]
+        main(city, state)
+    else:
+        print("Usage: python hotel_finder_cli.py <city> <state>")
