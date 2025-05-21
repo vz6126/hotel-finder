@@ -7,6 +7,7 @@ This script calls the Booking.com API to search for hotels
 import http.client
 import json
 from datetime import date, timedelta
+import os
 import urllib.parse
 
 class RapidApiClient:
@@ -22,7 +23,8 @@ class RapidApiClient:
 
     def _save_response(self, filename, json_data):
         if self.debug:
-            with open(filename, 'w', encoding='utf-8') as f:
+            os.makedirs("local", exist_ok=True)
+            with open(f'local/{filename}', 'w', encoding='utf-8') as f:
                 json.dump(json_data, f, indent=2, ensure_ascii=False)
 
     def _debug(self, message):
@@ -34,7 +36,7 @@ class RapidApiClient:
             self.message = message
             self.dest_id = dest_id
 
-    def locations(self, city, state):
+    def locations(self, city, state) -> "RapidApiClient.LocationsResponse":
         params = {
             'name': city,
             'locale': 'en-us'
@@ -74,7 +76,7 @@ class RapidApiClient:
             self.hotel_name = hotel_name
             self.min_total_price = min_total_price
 
-    def search(self, dest_id):
+    def search(self, dest_id) -> "RapidApiClient.SearchResponse":
         today = date.today()
         tomorrow = today + timedelta(days=1)
 
