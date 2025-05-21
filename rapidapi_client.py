@@ -45,16 +45,18 @@ class RapidApiClient:
         self._save_response("locations-filtered.json", filtered)
 
         if len(filtered) == 1:
-            print(f"Found {filtered[0]['label']} with dest_id={filtered[0]['dest_id']}")
-            return filtered[0]['dest_id']
-        elif len(filtered) > 1:
-            print(f"Error: found {len(filtered)} locations for {city}, {state}")
+            message = f"Success: found {filtered[0]['label']} with dest_id={filtered[0]['dest_id']}"
+            dest_id = filtered[0]['dest_id']
+        elif len(filtered) != 1:
+            message = f"Error: found {len(filtered)} locations for {city}, {state}\n"
             for i, entry in enumerate(filtered):
-                print(f"{i}: {entry['label']} with dest_id={entry['dest_id']}")
-            return 'location-ambiguous'
-        else:
-            print(f"Error: found no locations for {city}, {state}")
-            return 'location-not-found'
+                message += f"{i}: {entry['label']} with dest_id={entry['dest_id']}\n"
+            dest_id = None
+
+        return {
+            "message": message,
+            "dest_id": dest_id
+        }
 
     def search(self, dest_id):
         today = date.today()
@@ -94,7 +96,14 @@ class RapidApiClient:
         available = [h for h in not_hostels if h.get("soldout") == 0]
         print(f'Removed {len(not_hostels)-len(available)} sold out')
 
-        print(f'Found {len(available)} available hotels and motels:')
-        for i, h in enumerate(available):
-            print(f'{i+1:>2}. {h["hotel_name"]} {h["min_total_price"]}')
-
+        return {
+            "message": f'Found {len(available)} available hotels and motels.',
+            "results":  [
+                {
+                    "index": i + 1,
+                    "hotel_name": h["hotel_name"],
+                    "min_total_price": h["min_total_price"]
+                }
+                for i, h in enumerate(available)
+            ]
+        }
