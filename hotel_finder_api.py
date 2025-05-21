@@ -15,7 +15,7 @@ class Hotel(BaseModel):
 
 @app.get("/hotels")
 def find_hotels(city: str = Query(...), state: str = Query(...)):
-    client = RapidApiClient(save_responses=False)
+    client = RapidApiClient(debug=False)
 
     res = client.locations(city, state)
     dest_id = res.get("dest_id")

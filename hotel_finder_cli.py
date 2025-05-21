@@ -5,7 +5,7 @@ CLI entry point for hotel finder using RapidApiClient
 from rapidapi_client import RapidApiClient
 
 def main():
-    client = RapidApiClient(save_responses=True)
+    client = RapidApiClient(debug=True)
 
     res = client.locations("Houston", "Texas")
     print(res["message"])

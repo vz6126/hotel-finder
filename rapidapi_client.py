@@ -10,7 +10,7 @@ from datetime import date, timedelta
 import urllib.parse
 
 class RapidApiClient:
-    def __init__(self, config_path="config.json", save_responses=False):
+    def __init__(self, config_path="config.json", debug=False):
         with open(config_path, "r", encoding="utf-8") as f:
             config = json.load(f)
         self.headers = {
@@ -18,12 +18,16 @@ class RapidApiClient:
             'x-rapidapi-host': "booking-com.p.rapidapi.com"
         }
         self.conn = http.client.HTTPSConnection("booking-com.p.rapidapi.com")
-        self.save_responses = save_responses
+        self.debug = debug
 
     def _save_response(self, filename, json_data):
-        if self.save_responses:
+        if self.debug:
             with open(filename, 'w', encoding='utf-8') as f:
                 json.dump(json_data, f, indent=2, ensure_ascii=False)
+
+    def _debug(self, message):
+        if self.debug:
+            print(message)
 
     def locations(self, city, state):
         params = {
@@ -91,10 +95,10 @@ class RapidApiClient:
 
         all = d.get("result", [])
         not_hostels = [h for h in all if h.get("accommodation_type_name") != "Hostel"]
-        print(f'Removed {len(all)-len(not_hostels)} hostels')
+        self._debug(f'Removed {len(all)-len(not_hostels)} hostels')
 
         available = [h for h in not_hostels if h.get("soldout") == 0]
-        print(f'Removed {len(not_hostels)-len(available)} sold out')
+        self._debug(f'Removed {len(not_hostels)-len(available)} sold out')
 
         return {
             "message": f'Found {len(available)} available hotels and motels.',
