@@ -10,7 +10,7 @@ from datetime import date, timedelta
 import urllib.parse
 
 class RapidApiClient:
-    def __init__(self, config_path="config.json"):
+    def __init__(self, config_path="config.json", save_responses=False):
         with open(config_path, "r", encoding="utf-8") as f:
             config = json.load(f)
         self.headers = {
@@ -18,10 +18,12 @@ class RapidApiClient:
             'x-rapidapi-host': "booking-com.p.rapidapi.com"
         }
         self.conn = http.client.HTTPSConnection("booking-com.p.rapidapi.com")
+        self.save_responses = save_responses
 
-    def _save_dict_to_file(self, filename, json_data):
-        with open(filename, 'w', encoding='utf-8') as f:
-            json.dump(json_data, f, indent=2, ensure_ascii=False)
+    def _save_response(self, filename, json_data):
+        if self.save_responses:
+            with open(filename, 'w', encoding='utf-8') as f:
+                json.dump(json_data, f, indent=2, ensure_ascii=False)
 
     def locations(self, city, state):
         params = {
@@ -34,13 +36,13 @@ class RapidApiClient:
         data = self.conn.getresponse().read()
 
         all = json.loads(data.decode("utf-8"))
-        self._save_dict_to_file("locations-orig.json", all)
+        self._save_response("locations-orig.json", all)
 
         filtered = [entry for entry in all \
                     if entry.get("dest_type") == "city" \
                     and entry.get("country") == 'United States' \
                     and entry.get("region") == state]
-        self._save_dict_to_file("locations-filtered.json", filtered)
+        self._save_response("locations-filtered.json", filtered)
 
         if len(filtered) == 1:
             print(f"Found {filtered[0]['label']} with dest_id={filtered[0]['dest_id']}")
@@ -83,7 +85,7 @@ class RapidApiClient:
         self.conn.request("GET", url, headers=self.headers)
         data = self.conn.getresponse().read()
         d = json.loads(data.decode("utf-8"))
-        self._save_dict_to_file("search-orig.json", d)
+        self._save_response("search-orig.json", d)
 
         all = d.get("result", [])
         not_hostels = [h for h in all if h.get("accommodation_type_name") != "Hostel"]
@@ -98,6 +100,6 @@ class RapidApiClient:
 
 
 if __name__ == "__main__":
-    client = RapidApiClient()
+    client = RapidApiClient(save_responses=True)
     dest_id = client.locations("Houston", "Texas")
     client.search(dest_id)
