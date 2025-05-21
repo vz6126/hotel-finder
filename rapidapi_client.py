@@ -100,7 +100,6 @@ class RapidApiClient:
             "message": f'Found {len(available)} available hotels and motels.',
             "results":  [
                 {
-                    "index": i + 1,
                     "hotel_name": h["hotel_name"],
                     "min_total_price": h["min_total_price"]
                 }
