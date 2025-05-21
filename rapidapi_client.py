@@ -72,8 +72,8 @@ class RapidApiClient:
             self.hotels = hotels
 
     class Hotel:
-        def __init__(self, hotel_name: str, min_total_price: float):
-            self.hotel_name = hotel_name
+        def __init__(self, name: str, min_total_price: float):
+            self.name = name
             self.min_total_price = min_total_price
 
     def search(self, dest_id) -> "RapidApiClient.SearchResponse":
@@ -118,7 +118,7 @@ class RapidApiClient:
             message=f'Found {len(available)} available hotels and motels.',
             hotels=[
                 RapidApiClient.Hotel(
-                    hotel_name=h["hotel_name"],
+                    name=h["hotel_name"],
                     min_total_price=h["min_total_price"]
                 ) for h in available
             ]

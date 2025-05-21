@@ -16,7 +16,7 @@ def main():
     search_response = client.search(dest_id)
     print(search_response.message)
     for i, h in enumerate(search_response.hotels):
-        print(f'{i+1:>2}. {h.hotel_name} {h.min_total_price}')
+        print(f'{i+1:>2}. {h.name} {h.min_total_price}')
 
 
 if __name__ == "__main__":
