@@ -114,6 +114,9 @@ class RapidApiClient:
         available = [h for h in not_hostels if h.get("soldout") == 0]
         self._debug(f'Removed {len(not_hostels)-len(available)} sold out')
 
+        available.sort(key=lambda x: x["min_total_price"])
+        self._save_response("search-processed.json", available)
+
         return RapidApiClient.SearchResponse(
             message=f'Found {len(available)} available hotels and motels.',
             hotels=[
