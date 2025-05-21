@@ -98,8 +98,3 @@ class RapidApiClient:
         for i, h in enumerate(available):
             print(f'{i+1:>2}. {h["hotel_name"]} {h["min_total_price"]}')
 
-
-if __name__ == "__main__":
-    client = RapidApiClient(save_responses=True)
-    dest_id = client.locations("Houston", "Texas")
-    client.search(dest_id)
