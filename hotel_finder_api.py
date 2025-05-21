@@ -25,8 +25,8 @@ def find_hotels(city: str = Query(...), state: str = Query(...)):
     search_response = client.search(dest_id)
     hotels = [
         Hotel(
-            hotel_name=h["hotel_name"],
-            min_total_price=h["min_total_price"]
-        ) for h in search_response.get("results", [])
+            hotel_name=h.hotel_name,
+            min_total_price=h.min_total_price
+        ) for h in search_response.hotels
     ]
-    return HotelListResponse(message=search_response.get("message", ""), results=hotels)
+    return HotelListResponse(message=search_response.message, results=hotels)

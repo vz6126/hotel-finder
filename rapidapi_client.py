@@ -29,11 +29,11 @@ class RapidApiClient:
         if self.debug:
             print(message)
 
-    class LocationResponse:
+    class LocationsResponse:
         def __init__(self, message: str, dest_id: str | None):
             self.message = message
             self.dest_id = dest_id
-    
+
     def locations(self, city, state):
         params = {
             'name': city,
@@ -62,7 +62,17 @@ class RapidApiClient:
                 message += f"{i}: {entry['label']} with dest_id={entry['dest_id']}\n"
             dest_id = None
 
-        return RapidApiClient.LocationResponse(message, dest_id)
+        return RapidApiClient.LocationsResponse(message, dest_id)
+
+    class SearchResponse:
+        def __init__(self, message: str, hotels: list["RapidApiClient.Hotel"]):
+            self.message = message
+            self.hotels = hotels
+
+    class Hotel:
+        def __init__(self, hotel_name: str, min_total_price: float):
+            self.hotel_name = hotel_name
+            self.min_total_price = min_total_price
 
     def search(self, dest_id):
         today = date.today()
@@ -102,13 +112,12 @@ class RapidApiClient:
         available = [h for h in not_hostels if h.get("soldout") == 0]
         self._debug(f'Removed {len(not_hostels)-len(available)} sold out')
 
-        return {
-            "message": f'Found {len(available)} available hotels and motels.',
-            "results":  [
-                {
-                    "hotel_name": h["hotel_name"],
-                    "min_total_price": h["min_total_price"]
-                }
-                for i, h in enumerate(available)
+        return RapidApiClient.SearchResponse(
+            message=f'Found {len(available)} available hotels and motels.',
+            hotels=[
+                RapidApiClient.Hotel(
+                    hotel_name=h["hotel_name"],
+                    min_total_price=h["min_total_price"]
+                ) for h in available
             ]
-        }
+        )
