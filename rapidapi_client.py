@@ -29,6 +29,11 @@ class RapidApiClient:
         if self.debug:
             print(message)
 
+    class LocationResponse:
+        def __init__(self, message: str, dest_id: str | None):
+            self.message = message
+            self.dest_id = dest_id
+    
     def locations(self, city, state):
         params = {
             'name': city,
@@ -57,10 +62,7 @@ class RapidApiClient:
                 message += f"{i}: {entry['label']} with dest_id={entry['dest_id']}\n"
             dest_id = None
 
-        return {
-            "message": message,
-            "dest_id": dest_id
-        }
+        return RapidApiClient.LocationResponse(message, dest_id)
 
     def search(self, dest_id):
         today = date.today()

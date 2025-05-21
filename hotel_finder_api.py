@@ -1,8 +1,6 @@
-from datetime import date, timedelta
-import urllib.parse, json
 from fastapi import FastAPI, Query
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List
 from rapidapi_client import RapidApiClient
 
 app = FastAPI()
@@ -10,24 +8,25 @@ app = FastAPI()
 class Hotel(BaseModel):
     hotel_name: str
     min_total_price: float
-    soldout: int
-    accommodation_type_name: Optional[str] = None
 
-@app.get("/hotels")
+class HotelListResponse(BaseModel):
+    message: str
+    results: List[Hotel]
+
+@app.get("/hotels", response_model=HotelListResponse)
 def find_hotels(city: str = Query(...), state: str = Query(...)):
-    client = RapidApiClient(debug=False)
+    client = RapidApiClient()
 
-    res = client.locations(city, state)
-    dest_id = res.get("dest_id")
+    location_response = client.locations(city, state)
+    dest_id = location_response.dest_id
     if not dest_id:
-        return {"message": res.get("message"), "results": []}
+        return HotelListResponse(message=location_response.message, results=[])
     
-    res = client.search(dest_id)
-    results = res.get("results", [])
+    search_response = client.search(dest_id)
     hotels = [
-        {
-            "hotel_name": h["hotel_name"],
-            "min_total_price": h["min_total_price"]
-        } for h in results
+        Hotel(
+            hotel_name=h["hotel_name"],
+            min_total_price=h["min_total_price"]
+        ) for h in search_response.get("results", [])
     ]
-    return {"message": res.get("message", ""), "results": hotels}
+    return HotelListResponse(message=search_response.get("message", ""), results=hotels)
