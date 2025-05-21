@@ -19,12 +19,15 @@ A Python project to search for hotels using the Booking.com API via RapidAPI. Pr
    ```powershell
    pip install -r requirements.txt
    ```
-3. Copy `config-template.json` to `config.json` and add your RapidAPI key:
-   ```json
-   {
-     "RAPIDAPI_KEY": "your_rapidapi_key_here"
-   }
-   ```
+3. Set your RapidAPI key as an environment variable:
+   - On Windows (Powershell):
+     ```powershell
+     $env:RAPIDAPI_KEY = "your_rapidapi_key_here"
+     ```
+   - On Linux/macOS (bash):
+     ```bash
+     export RAPIDAPI_KEY="your_rapidapi_key_here"
+     ```
 
 ## Usage
 

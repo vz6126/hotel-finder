@@ -11,11 +11,10 @@ import os
 import urllib.parse
 
 class RapidApiClient:
-    def __init__(self, config_path="config.json", debug=False):
-        with open(config_path, "r", encoding="utf-8") as f:
-            config = json.load(f)
+    def __init__(self, debug=False):
+        RAPIDAPI_KEY = os.getenv("RAPIDAPI_KEY", "Error: RAPIDAPI_KEY not set")
         self.headers = {
-            'x-rapidapi-key': config["RAPIDAPI_KEY"],
+            'x-rapidapi-key': RAPIDAPI_KEY,
             'x-rapidapi-host': "booking-com.p.rapidapi.com"
         }
         self.conn = http.client.HTTPSConnection("booking-com.p.rapidapi.com")
@@ -37,31 +36,37 @@ class RapidApiClient:
             self.dest_id = dest_id
 
     def locations(self, city, state) -> "RapidApiClient.LocationsResponse":
-        params = {
-            'name': city,
-            'locale': 'en-us'
-        }
-        encoded_params = urllib.parse.urlencode(params)
-        url = f"/v1/hotels/locations?{encoded_params}"
-        self.conn.request("GET", url, headers=self.headers)
-        data = self.conn.getresponse().read()
+        try:
+            params = {
+                'name': city,
+                'locale': 'en-us'
+            }
+            encoded_params = urllib.parse.urlencode(params)
+            url = f"/v1/hotels/locations?{encoded_params}"
+            self.conn.request("GET", url, headers=self.headers)
+            data = self.conn.getresponse().read()
 
-        all = json.loads(data.decode("utf-8"))
-        self._save_response("locations-orig.json", all)
+            all = json.loads(data.decode("utf-8"))
+            self._save_response("locations-orig.json", all)
+            if isinstance(all, dict):
+                raise ValueError(all.get('message', 'Unknown error'))
 
-        filtered = [entry for entry in all \
-                    if entry.get("dest_type") == "city" \
-                    and entry.get("country") == 'United States' \
-                    and entry.get("region") == state]
-        self._save_response("locations-filtered.json", filtered)
+            filtered = [entry for entry in all \
+                        if entry.get("dest_type") == "city" \
+                        and entry.get("country") == 'United States' \
+                        and entry.get("region") == state]
+            self._save_response("locations-filtered.json", filtered)
 
-        if len(filtered) == 1:
-            message = f"Success: found {filtered[0]['label']} with dest_id={filtered[0]['dest_id']}"
-            dest_id = filtered[0]['dest_id']
-        elif len(filtered) != 1:
-            message = f"Error: found {len(filtered)} locations for {city}, {state}\n"
-            for i, entry in enumerate(filtered):
-                message += f"{i}: {entry['label']} with dest_id={entry['dest_id']}\n"
+            if len(filtered) == 1:
+                message = f"Success: found {filtered[0]['label']} with dest_id={filtered[0]['dest_id']}"
+                dest_id = filtered[0]['dest_id']
+            elif len(filtered) != 1:
+                message = f"Error: found {len(filtered)} locations for {city}, {state}\n"
+                for i, entry in enumerate(filtered):
+                    message += f"{i}: {entry['label']} with dest_id={entry['dest_id']}\n"
+                dest_id = None
+        except Exception as e:
+            message = f"Error: {e}"
             dest_id = None
 
         return RapidApiClient.LocationsResponse(message, dest_id)
