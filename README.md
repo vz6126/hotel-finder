@@ -32,9 +32,9 @@ A Python project to search for hotels using the Booking.com API via RapidAPI. Pr
 ## Usage
 
 ### CLI
-Run the CLI to search for hotels in Houston, Texas:
+Run the CLI to search for hotels in a specific city and state (e.g., Sacramento, California):
 ```powershell
-python hotel_finder_cli.py
+python hotel_finder_cli.py Sacramento California
 ```
 
 ### REST API
@@ -47,7 +47,7 @@ Then open [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs) for interacti
 
 #### Example API Call
 ```
-GET /hotels?city=Houston&state=Texas
+GET /hotels?city=Sacramento&state=California
 ```
 
 ## Project Structure
