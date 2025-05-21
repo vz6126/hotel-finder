@@ -17,10 +17,10 @@ class HotelListResponse(BaseModel):
 def find_hotels(city: str = Query(...), state: str = Query(...)):
     client = RapidApiClient()
 
-    location_response = client.locations(city, state)
-    dest_id = location_response.dest_id
+    locations_response = client.locations(city, state)
+    dest_id = locations_response.dest_id
     if not dest_id:
-        return HotelListResponse(message=location_response.message, results=[])
+        return HotelListResponse(message=locations_response.message, results=[])
     
     search_response = client.search(dest_id)
     hotels = [
