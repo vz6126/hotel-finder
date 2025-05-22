@@ -1,7 +1,9 @@
+import os
 from fastapi import FastAPI, Query
 from pydantic import BaseModel
 from typing import List
 from rapidapi_client import RapidApiClient
+from fastapi.openapi.utils import get_openapi
 
 app = FastAPI(
     title="Hotel Search API",
@@ -36,6 +38,22 @@ def find_hotels(city: str = Query(...), state: str = Query(...)):
     return HotelsResponse(message=search_response.message, hotels=hotels)
 
 
+def custom_openapi():
+    # Generate the standard schema
+    openapi_schema = get_openapi(
+        title=app.title,
+        version=app.version,
+        description=app.description,
+        routes=app.routes,
+    )
+    # Inject the servers list
+    openapi_schema["servers"] = [{
+        "url": os.getenv("BASE_URL", "https://hotel-finder-h3c5.onrender.com/"), 
+        "description": "Production" 
+    }]
+    return openapi_schema
+
+app.openapi = custom_openapi
 
 @app.get("/ai-plugin.json", include_in_schema=False)
 async def plugin_manifest():
