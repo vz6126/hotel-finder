@@ -48,7 +48,7 @@ def custom_openapi():
     )
     # Inject the servers list
     openapi_schema["servers"] = [{
-        "url": os.getenv("BASE_URL", "https://hotel-finder-h3c5.onrender.com/"), 
+        "url": os.getenv("BASE_URL", "https://hotel-finder-h3c5.onrender.com"), 
         "description": "Production" 
     }]
     return openapi_schema
