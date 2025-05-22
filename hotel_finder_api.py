@@ -3,7 +3,11 @@ from pydantic import BaseModel
 from typing import List
 from rapidapi_client import RapidApiClient
 
-app = FastAPI()
+app = FastAPI(
+    title="Hotel Search API",
+    version="0.0.1",
+    description="Booking.com–backed hotel lookup"
+)    
 
 class Hotel(BaseModel):
     name: str
@@ -30,3 +34,23 @@ def find_hotels(city: str = Query(...), state: str = Query(...)):
         ) for h in search_response.hotels
     ]
     return HotelsResponse(message=search_response.message, hotels=hotels)
+
+
+
+@app.get("/ai-plugin.json", include_in_schema=False)
+async def plugin_manifest():
+    return {
+  "schema_version": "v1",
+  "name_for_human": "Hotel Search",
+  "name_for_model": "hotel_search",
+  "description_for_human": "Search hotels via Booking.com (RapidAPI)",
+  "description_for_model": "Use this to look up hotels for tonight by city and state.",
+  "auth": {
+    "type": "none"
+  },
+  "api": {
+    "type": "openapi",
+    "url": "https://hotel-finder-h3c5.onrender.com/openapi.json",
+    "has_user_authentication": False
+  }
+}
