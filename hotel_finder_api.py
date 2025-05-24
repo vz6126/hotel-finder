@@ -1,9 +1,10 @@
 import os
 from fastapi import FastAPI, Query
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 from rapidapi_client import RapidApiClient
 from fastapi.openapi.utils import get_openapi
+from datetime import date
 
 app = FastAPI(
     title="Hotel Search API",
@@ -20,7 +21,11 @@ class HotelsResponse(BaseModel):
     hotels: List[Hotel]
 
 @app.get("/hotels", response_model=HotelsResponse)
-def find_hotels(city: str = Query(...), state: str = Query(...)):
+def find_hotels(
+    city: str = Query(...),
+    state: str = Query(...),
+    checkin_date: Optional[date] = Query(None, description="Check-in date (format: YYYY-MM-DD)")
+):
     client = RapidApiClient()
 
     locations_response = client.locations(city, state)
@@ -28,7 +33,7 @@ def find_hotels(city: str = Query(...), state: str = Query(...)):
     if not dest_id:
         return HotelsResponse(message=locations_response.message, hotels=[])
     
-    search_response = client.search(dest_id)
+    search_response = client.search(dest_id, checkin_date)
     hotels = [
         Hotel(
             name=h.name,
@@ -62,7 +67,7 @@ async def plugin_manifest():
   "name_for_human": "Hotel Search",
   "name_for_model": "hotel_search",
   "description_for_human": "Search hotels via Booking.com (RapidAPI)",
-  "description_for_model": "Use this to look up hotels for tonight by city and state.",
+  "description_for_model": "Use this to look up hotels by city, state, and check-in date. If no check-in date is provided, it defaults to today.",
   "auth": {
     "type": "none"
   },

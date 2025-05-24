@@ -81,9 +81,10 @@ class RapidApiClient:
             self.name = name
             self.min_total_price = min_total_price
 
-    def search(self, dest_id) -> "RapidApiClient.SearchResponse":
-        today = date.today()
-        tomorrow = today + timedelta(days=1)
+    def search(self, dest_id, checkin_date=None) -> "RapidApiClient.SearchResponse":
+        if checkin_date is None:
+            checkin_date = date.today()
+        checkout_date = checkin_date + timedelta(days=1)
 
         params = {
             'adults_number': 1,
@@ -101,8 +102,8 @@ class RapidApiClient:
             'price_max': 70,
             'price_filter_currencycode': 'USD',
             'categories_filter_ids': 'class::2,class::3,class::4',
-            'checkin_date': str(today),
-            'checkout_date': str(tomorrow)
+            'checkin_date': str(checkin_date),
+            'checkout_date': str(checkout_date)
         }
 
         encoded_params = urllib.parse.urlencode(params)
