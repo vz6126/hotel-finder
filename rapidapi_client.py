@@ -19,11 +19,12 @@ class RapidApiClient:
         }
         self.conn = http.client.HTTPSConnection("booking-com.p.rapidapi.com")
         self.debug = debug
+        self.debug_folder = 'logs'
 
     def _save_response(self, filename, json_data):
         if self.debug:
-            os.makedirs("local", exist_ok=True)
-            with open(f'local/{filename}', 'w', encoding='utf-8') as f:
+            os.makedirs(self.debug_folder, exist_ok=True)
+            with open(f'{self.debug_folder}/{filename}', 'w', encoding='utf-8') as f:
                 json.dump(json_data, f, indent=2, ensure_ascii=False)
 
     def _debug(self, message):
@@ -54,7 +55,8 @@ class RapidApiClient:
             filtered = [entry for entry in all \
                         if entry.get("dest_type") == "city" \
                         and entry.get("country") == 'United States' \
-                        and entry.get("region") == state]
+                        and entry.get("region") == state \
+                        and entry.get("city_name") == city]
             self._save_response("locations-filtered.json", filtered)
 
             if len(filtered) == 1:
@@ -124,7 +126,7 @@ class RapidApiClient:
         self._save_response("search-processed.json", available)
 
         return RapidApiClient.SearchResponse(
-            message=f'Found {len(available)} available hotels and motels.',
+            message=f'Found {len(available)} available hotels and motels for {checkin_date}.',
             hotels=[
                 RapidApiClient.Hotel(
                     name=h["hotel_name"],
