@@ -37,7 +37,7 @@ For each hotel in the table:
     b. Decide for each attribute:  
        – Carpeted floors → Yes / No / Unknown  
        – Public-transport accessible (bus or rail stop ≤ 1 mile) → Yes / No / Unknown
-    c. Link each Yes/No to the evidence URL; Unknown has no link.
+    c. Link each Yes/No to the evidence URL; Link Unknown to any of the URLs used for making the decision, preferably to the one with the room images
 
 4. Display the final markdown table with columns:  
    `# | Hotel | Price | Carpeted Floors | Public Transport`
